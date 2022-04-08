@@ -1,162 +1,241 @@
+import flask
 from flask import Flask, render_template, request, redirect
 import sqlite3
-con = sqlite3.connect("hospitalmanagementsystem.db", check_same_thread= False)
+con = sqlite3.connect("bookmanagementsystem.db", check_same_thread= False)
 cursor = con.cursor()
-listOfTables = con.execute("SELECT name from sqlite_master WHERE type='table' AND name='PATIENT' ").fetchall()
+listOfTables = con.execute("SELECT name from sqlite_master WHERE type='table' AND name='BOOKS' ").fetchall()
+listOfTables1 = con.execute("SELECT name from sqlite_master WHERE type='table' AND name='USERS' ").fetchall()
 if listOfTables!=[]:
     print("Table Already Exists ! ")
 else:
-    con.execute(''' CREATE TABLE PATIENT(
+    con.execute(''' CREATE TABLE BOOKS(
                             ID INTEGER PRIMARY KEY AUTOINCREMENT,
-                            PATIENTNAME TEXT,
-                            MOBILE INTEGER,
-                            AGE INTEGER,
-                            ADDRESS TEXT,
-                            PLACE TEXT,
-                            PINCODE INTEGER,
-                            DATEOFBIRTH TEXT,
+                            BOOKNAME TEXT,
+                            AUTHOR TEXT,
+                            CATEGORY TEXT,
+                            PRICE INTEGER,
+                            PUBLISHER TEXT,
                             PASSWORD TEXT); ''')
 
-print("Table has created")
+print("Book table has created")
+if listOfTables1!=[]:
+    print("Table Already Exists ! ")
+else:
+    con.execute(''' CREATE TABLE USERS(
+                            ID INTEGER PRIMARY KEY AUTOINCREMENT,
+                            name TEXT,
+                            address TEXT,
+                            email TEXT,
+                            phone TEXT,
+                            password TEXT); ''')
+
+print("User table has created")
+
 app = Flask(__name__)
 
-@app.route("/", methods=["GET","POST"])
+@app.route("/")
+def welcomepage():
+    return render_template("base2.html")
+
+@app.route("/login", methods=["GET","POST"])
 def welcome():
     if request.method == "POST":
         getlogUsername = request.form["logusername"]
         getlogpassword = request.form["logpassword"]
         print(getlogUsername)
         print(getlogpassword)
-        if getlogUsername == "admin" and getlogpassword == "12345":
-            return redirect("/dashboard")
+        if getlogUsername == "admin" and getlogpassword == "9875":
+            return redirect("/bookentry")
     return render_template("login.html")
 
-@app.route("/dashboard", methods=["GET","POST"])
+@app.route("/user", methods=["GET","POST"])
+def user():
+    if request.method == "POST":
+        getEmail = request.form["email"]
+        getpass = request.form["pass"]
+        print(getEmail)
+        print(getpass)
+        try:
+            cursor.execute("SELECT * FROM USERS WHERE email='"+getEmail+"' AND password='"+getpass+"'")
+            r = cursor.fetchall()
+            print(r)
+            if len(r) == 0:
+                print("invalid user!")
+            else:
+                return redirect("/userview")
+
+        except Exception as e:
+            print(e)
+    return render_template("user.html")
+
+@app.route("/userregister", methods=["GET","POST"])
+def userreg():
+    if request.method == "POST":
+        getName = request.form["name"]
+        getAddress = request.form["address"]
+        getEmail = request.form["email"]
+        getPhone = request.form["phnnumber"]
+        getPass = request.form["pwd"]
+        getCfnpass = request.form["cfnpwd"]
+        print(getName)
+        print(getAddress)
+        print(getEmail)
+        print(getPhone)
+        print(getPass)
+        print(getCfnpass)
+        try:
+            if getPass == getCfnpass :
+                cursor.execute("INSERT INTO USERS(name, address, email, phone, password) VALUES('"+getName+"','"+getAddress+"','"+getEmail+"','"+getPhone+"','"+getPass+"')")
+                print("Successfully created.")
+                con.commit()
+            else:
+                print("Password mismatch")
+            # return redirect("/userview")
+        except Exception as e:
+            print(e)
+
+    return render_template("userregister.html")
+
+@app.route("/userview")
+def userviewing():
+    return render_template("userdash.html")
+
+@app.route("/bookentry", methods=["GET","POST"])
 def register():
     if request.method == "POST":
-        getpatientName = request.form["patname"]
-        getMobile = request.form["mobile"]
-        getAge = request.form["age"]
-        getAddress = request.form["address"]
-        getPlace = request.form["place"]
-        getPincode = request.form["pincode"]
-        getDob = request.form["dob"]
+        getBookname = request.form["bookname"]
+        getAuthor = request.form["author"]
+        getCategory = request.form["category"]
+        getPrice = request.form["price"]
+        getPublisher = request.form["publisher"]
         getPassword = request.form["pwd"]
-        getConformPassword = request.form["cfnpwd"]
-        print(getpatientName)
-        print(getMobile)
-        print(getAge)
-        print(getAddress)
-        print(getPlace)
-        print(getPincode)
-        print(getDob)
+        print(getBookname)
+        print(getAuthor)
+        print(getCategory)
+        print(getPrice)
+        print(getPublisher)
         print(getPassword)
-        print(getConformPassword)
         try:
-            con.execute("INSERT INTO PATIENT(PATIENTNAME, MOBILE, AGE, ADDRESS, PLACE, PINCODE, DATEOFBIRTH, PASSWORD) VALUES('"+getpatientName+"','"+getMobile+"','"+getAge+"','"+getAddress+"','"+getPlace+"','"+getPincode+"','"+getDob+"','"+getPassword+"')")
+            con.execute("INSERT INTO BOOKS(BOOKNAME, AUTHOR, CATEGORY, PRICE, PUBLISHER, PASSWORD) VALUES('"+getBookname+"','"+getAuthor+"','"+getCategory+"','"+getPrice+"','"+getPublisher+"','"+getPassword+"')")
             print("Successfully inserted.")
             con.commit()
         except Exception as e:
             print(e)
 
-    return render_template("dashboard.html")
+    return render_template("bookentry.html")
 
-@app.route("/search", methods=["GET","POST"])
+@app.route("/booksearch", methods=["GET","POST"])
 def search():
     if request.method == "POST":
-        getMobile = request.form["mobile"]
-        print(getMobile)
+        getBookname = request.form["bookname"]
+        print(getBookname)
         try:
-            cursor.execute("SELECT * FROM PATIENT WHERE MOBILE="+getMobile)
+            cursor.execute("SELECT * FROM BOOKS WHERE BOOKNAME='"+getBookname+"'")
             print("Selected")
             q = cursor.fetchall()
             if len(q) == 0:
-                print("Invalid mobile number")
+                print("Invalid name")
             else:
                 print("Search successful")
                 print(len(q))
-                return render_template("search.html", patient=q, status=True)
+                return render_template("booksearch.html", books=q, status=True)
         except Exception as e:
             print(e)
 
-    return render_template("search.html", patient=[], Status=False)
+    return render_template("booksearch.html", books=[], Status=False)
 
-
-@app.route("/delete", methods=["GET","POST"])
-def delete():
+@app.route("/usersearch", methods=["GET","POST"])
+def userbooksearch():
     if request.method == "POST":
-        getMobile = request.form["mobile"]
-        print(getMobile)
+        getBookname = request.form["bookname"]
+        print(getBookname)
         try:
-            cursor.execute("DELETE FROM PATIENT WHERE MOBILE="+getMobile)
+            cursor.execute("SELECT * FROM BOOKS WHERE BOOKNAME='"+getBookname+"'")
+            print("Selected")
             q = cursor.fetchall()
             if len(q) == 0:
-                print("Invalid mobile number")
+                print("Invalid name")
             else:
-                print("Successfully deleted")
+                print("Search successful")
                 print(len(q))
-                return render_template("search.html", patient=q, status=True)
+                return render_template("usersearch.html", books=q, status=True)
         except Exception as e:
             print(e)
 
-    return render_template("delete.html", patient=[], Status=False)
+    return render_template("usersearch.html", books=[], Status=False)
 
-@app.route("/update",methods=["GET","POST"])
+
+@app.route("/bookdelete", methods =['GET','POST'])
+def delete():
+    if request.method == "POST":
+        getBookname = request.form['bookname']
+        print(getBookname)
+        try:
+            con.execute("DELETE FROM BOOKS WHERE BOOKNAME='"+getBookname+"'")
+            print("SUCCESSFULLY DELETED!")
+            con.commit()
+            return redirect("/viewallbook")
+        except Exception as e:
+            print(e)
+    return flask.render_template("bookdelete.html")
+
+@app.route("/bookupdate",methods=["GET","POST"])
 def update():
     if request.method == "POST":
-        getMobile = request.form["mobile"]
-        print(getMobile)
+        getBookname = request.form["bookname"]
+        print(getBookname)
         try:
-            cursor.execute("SELECT * FROM PATIENT WHERE MOBILE="+getMobile)
+            cursor.execute("SELECT * FROM BOOKS WHERE MOBILE="+getBookname)
             print("Selected a patient")
             r = cursor.fetchall()
             if len(r)==0:
                 print("Invalid mobile number")
             else:
                 print(len(r))
-                return render_template("viewupdate.html", patients=r)
-            return redirect("/viewupdate")
+                return render_template("bookviewupdate.html", patients=r)
+            return redirect("/bookviewupdate")
         except Exception as e:
             print(e)
-    return render_template("update.html")
+    return render_template("bookupdate.html")
 
-@app.route("/viewupdate", methods = ['GET','POST'])
+@app.route("/bookviewupdate", methods = ['GET','POST'])
 def viewupdate():
     if request.method == "POST":
-        getpatientName = request.form["patname"]
-        getMobile = request.form["mobile"]
-        getAge = request.form["age"]
-        getAddress = request.form["address"]
-        getPlace = request.form["place"]
-        getPincode = request.form["pincode"]
-        getDob = request.form["dob"]
+        getBookname = request.form["bookname"]
+        getAuthor = request.form["author"]
+        getCategory = request.form["category"]
+        getPrice = request.form["price"]
+        getPublisher = request.form["publisher"]
         getPassword = request.form["pwd"]
         getConformPassword = request.form["cfnpwd"]
-        print(getpatientName)
-        print(getMobile)
-        print(getAge)
-        print(getAddress)
-        print(getPlace)
-        print(getPincode)
-        print(getDob)
+        print(getBookname)
+        print(getAuthor)
+        print(getCategory)
+        print(getPrice)
+        print(getPublisher)
         print(getPassword)
         print(getConformPassword)
         try:
-            con.execute(
-                "INSERT INTO PATIENT(PATIENTNAME, MOBILE, AGE, ADDRESS, PLACE, PINCODE, DATEOFBIRTH, PASSWORD) VALUES('" + getpatientName + "','" + getMobile + "','" + getAge + "','" + getAddress + "','" + getPlace + "','" + getPincode + "','" + getDob + "','" + getPassword + "')")
+            con.execute("INSERT INTO BOOKS(BOOKNAME, AUTHOR, CATEGORY, PRICE, PUBLISHER, PASSWORD) VALUES('"+getBookname+"','"+getAuthor+"','"+getCategory+"','"+getPrice+"','"+getPublisher+"','"+getPassword+"')")
             print("Successfully inserted.")
             con.commit()
-            return redirect('/viewall')
+            return redirect('/viewallbook')
         except Exception as e:
             print(e)
 
-    return render_template("viewupdate.html")
+    return render_template("bookviewupdate.html")
 
-@app.route("/viewall")
+@app.route("/viewallbook")
 def viewall():
-    cursor.execute("SELECT * FROM PATIENT")
+    cursor.execute("SELECT * FROM BOOKS")
     r = cursor.fetchall()
-    return render_template("viewall.html", patients=r)
+    return render_template("viewallbook.html", books=r)
+
+@app.route("/userbookview")
+def userallbook():
+    cursor.execute("SELECT * FROM BOOKS")
+    r = cursor.fetchall()
+    return render_template("userbookview.html", books=r)
 
 if __name__=="__main__":
     app.run(debug=True)

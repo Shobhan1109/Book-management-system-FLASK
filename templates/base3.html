@@ -6,30 +6,24 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+   
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-primary">
         <div class="container-fluid">
           <a class="navbar-brand" href="#"><B>BOOK MANAGEMENT SYSTEM</B></a>
+          
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
           </button>
+          
           <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav">
               <li class="nav-item">
-                <a class="nav-link active" aria-current="page" href="/bookentry">Add book</a>
+                <a class="nav-link" href="/userbookview">View all book's</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="/viewallbook">View all book's</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="/booksearch">Search a book</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="/bookupdate">Edit book details</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="/bookdelete">Delete book</a>
+                <a class="nav-link" href="/usersearch">Search a book</a>
               </li>
               <li class="nav-item">
                 <a class="nav-link" href="/">Logout</a>
@@ -38,7 +32,9 @@
           </div>
         </div>
       </nav>
-      <h3><center>ADMIN MODULE</center></h3>
+      <h3><center>USER MODULE</center></h3>
+    
+
 
       {% block content %}
 
