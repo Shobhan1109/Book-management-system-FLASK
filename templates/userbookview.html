@@ -1,34 +1,27 @@
 {% extends "base3.html" %}
 {% block content %}
-    <div class="container">
-        <div class="raw">
-            <div class="col col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
-              <tr>
-                <td><B>TOTAL BOOKS</B></td>
-            </tr>
-                    <table class="table">
-                      <thead>
-                        <tr>
-                          <th scope="col">Book name</th>
-                          <th scope="col">Author</th>
-                          <th scope="col">Category</th>
-                          <th scope="col">Price</th>
-                          <th scope="col">Publisher</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {% for i in books %}
-                        <tr>
-                          <th scope="row">{{ i[1] }}</th>
-                          <td>{{ i[2] }}</td>
-                          <td>{{ i[3] }}</td>
-                          <td>{{ i[4] }}</td>
-                          <td>{{ i[5] }}</td>
-                        </tr>
-                        {% endfor %}
-                      </tbody>
-                      </table>
-            </div>
+
+<h3 style="text-align: center; margin-top: 1% ; color: white;">VIEW ALL BOOKS</h3>
+<hr style="color: white;">
+<div class="container">
+    <div class="row">
+        {% for i in books %}
+        <div class="col col-12 col-sm-6 col-md-4 col-lg-3 col-xl-3 col-xxl-3">
+            <div class="card" style="width: 16rem; margin-top: 1cm; border-radius: 20px;">
+                <img src="https://cdn4.iconfinder.com/data/icons/bookstore-9/64/man-avatar-reading-student-education-book_store_1-512.png" class="card-img-top" alt="...">
+                <div class="card-body">
+                    <h5 class="card-title"><center>{{i[1]}}</center></h5>
+                  <p class="card-text">Author: {{i[2]}}</p>
+                </div>
+                <ul class="list-group list-group-flush">
+                  <li class="list-group-item">Category : {{i[3]}}</li>
+                  <li class="list-group-item">Price : {{i[4]}}</li>
+                  <li class="list-group-item">Publisher : {{i[5]}}</li>
+                </ul>
+              </div>
         </div>
+        {% endfor %}
     </div>
+</div>
+
 {% endblock %}
